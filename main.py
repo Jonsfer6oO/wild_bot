@@ -10,7 +10,6 @@ async def main():
     bot = Bot(conf.tg_conf.bot_token)
     dp = Dispatcher()
 
-
     dp.workflow_data.update({"bot":bot})
 
     #регистрация роутеров
