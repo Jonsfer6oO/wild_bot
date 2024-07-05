@@ -3,7 +3,7 @@ import logging
 
 from aiogram import Bot,Dispatcher
 from config import conf
-from hendlers import ad_r
+from hendlers import ad_r, pe_r
 
 async def main():
 
@@ -13,6 +13,7 @@ async def main():
     dp.workflow_data.update({"bot":bot})
 
     #регистрация роутеров
+    dp.include_router(pe_r)
     dp.include_router(ad_r)
 
     await bot.delete_webhook(drop_pending_updates=True) #пропуск апдейтов
