@@ -7,7 +7,7 @@ from aiogram.enums import ParseMode
 
 
 from filter import Walid_admin, walid_quer, walid_percent, walid_time_poll, walid_price,walid_add_admin, walid_del_admin, service_on, service_off
-from utils import sql_admin, list_str_sql, update_data, del_admin_sql, list_admin_sql, update_status
+from utils import sql_admin, list_str_sql, update_data, del_admin_sql, list_admin_sql, update_status, list_str_people
 from utils import sql_status, upgrate_poll, list_str_poll
 from config import conf
 from lexicon import text
@@ -71,6 +71,10 @@ async def return_poll(message:Message, bot):
         # Информирование об отправке опроса
         await message.reply(text=text["SEND_POLL"].format(list_str_sql(message.from_user.id)[-2]))
 
+        # отправка номера опроса пользователю
+        await bot.send_message(chat_id = message.forward_origin.sender_user.id,
+                               text=text["NUMBER_POLL_PEOPLE"].format(list_str_poll()[0]))
+
         # поступление нового опроса
         await bot.send_message(chat_id=conf.tg_conf.chat_id,
                                text=text["NEW_POLL"].format(list_str_poll()[0]))
@@ -121,10 +125,15 @@ async def return_poll(message:Message, bot):
             await bot.send_message(chat_id=conf.tg_conf.chat_id,
                                 text=text["ANSWER_POLL"].format(list_user_str))
 
-            # отправка опроса
-            await bot.forward_message(chat_id = list_str_sql(message.from_user.id)[0],
+            # отправка опроса админу
+            await bot.forward_message(chat_id = conf.tg_conf.admin_id,
                                       message_id = mess.message_id,
                                       from_chat_id = mess.chat.id)
+
+            # отправка опроса пользователю
+            await bot.forward_message(chat_id = int(message.forward_origin.sender_user.id),
+                                      message_id = mess.message_id,
+                                      from_chat_id = message.chat.id)
 
             # статистика
             await message.answer(text=text['STATE_ADMIN'].format("@" + str(message.chat.username),

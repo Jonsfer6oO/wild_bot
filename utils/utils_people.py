@@ -55,3 +55,33 @@ def list_str_people(id):
     for i in user_id:
         if i[0] == id:
             return list(i)
+
+# смена количества денег
+def update_money(id, money):
+    conn = sqlite3.connect('admin.db')
+    cursor = conn.cursor()
+
+    cursor.execute("UPDATE people SET money = ? WHERE id = ?", (money, id))
+
+    conn.commit()
+    conn.close()
+
+# смена количества опросов
+def update_attems(id, count_poll):
+    conn = sqlite3.connect('admin.db')
+    cursor = conn.cursor()
+
+    cursor.execute("UPDATE people SET count_attems = ? WHERE id = ?", (count_poll, id))
+
+    conn.commit()
+    conn.close()
+
+# выход из панели заказчика
+def update_exit(id, status):
+    conn = sqlite3.connect('admin.db')
+    cursor = conn.cursor()
+
+    cursor.execute("UPDATE people SET attems = ? WHERE id = ?", (status, id))
+
+    conn.commit()
+    conn.close()
