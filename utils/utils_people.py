@@ -76,7 +76,7 @@ def update_attems(id, count_poll):
     conn.commit()
     conn.close()
 
-# выход из панели заказчика
+# выход/вход из панели заказчика
 def update_exit(id, status):
     conn = sqlite3.connect('admin.db')
     cursor = conn.cursor()

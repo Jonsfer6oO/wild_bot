@@ -9,6 +9,7 @@ from aiogram.enums import ParseMode
 from filter import Walid_admin, walid_quer, walid_percent, walid_time_poll, walid_price,walid_add_admin, walid_del_admin, service_on, service_off
 from utils import sql_admin, list_str_sql, update_data, del_admin_sql, list_admin_sql, update_status, list_str_people
 from utils import sql_status, upgrate_poll, list_str_poll
+from utils import update_attems_voice, update_money_voice, list_str_people_voice
 from config import conf
 from lexicon import text
 import datetime
@@ -22,6 +23,7 @@ ad_r = Router()
 ad_r.message.filter(Walid_admin)
 
 list_poll = [] # список ответивших в голосовании
+list_poll_id = []
 time_p = 30 # время на голосование
 
 status_admin = 0 # статус дминской панели
@@ -125,6 +127,9 @@ async def return_poll(message:Message, bot):
             await bot.send_message(chat_id=conf.tg_conf.chat_id,
                                 text=text["ANSWER_POLL"].format(list_user_str))
 
+
+
+
             # отправка опроса админу
             await bot.forward_message(chat_id = conf.tg_conf.admin_id,
                                       message_id = mess.message_id,
@@ -133,17 +138,23 @@ async def return_poll(message:Message, bot):
             # отправка опроса пользователю
             await bot.forward_message(chat_id = int(message.forward_origin.sender_user.id),
                                       message_id = mess.message_id,
-                                      from_chat_id = message.chat.id)
+                                      from_chat_id = int(mess.chat.id))
 
             # статистика
-            await message.answer(text=text['STATE_ADMIN'].format("@" + str(message.chat.username),
+            await message.answer(text=text['STATE_ADMIN'].format("@" + str(message.forward_origin.sender_user.username),
                                                         "#" + f"{list_str_poll()[0]}" + "X",
-                                                        str(list_str_sql(message.from_user.id)[3]) + "%",
+                                                        str(list_str_sql(conf.tg_conf.admin_id)[3]) + "%",
                                                         len(list_poll),
-                                                        list_str_sql(message.from_user.id)[2]//len(list_poll),
-                                                        list_str_sql(message.from_user.id)[2],
+                                                        (list_str_sql(conf.tg_conf.admin_id)[2]*list_str_sql(conf.tg_conf.admin_id)[3]//100)//len(list_poll),
+                                                        list_str_sql(conf.tg_conf.admin_id)[2]*list_str_sql(conf.tg_conf.admin_id)[3]//100,
                                                         datetime.datetime.now(),
                                                         list_str_sql(conf.tg_conf.admin_id)[1]))
+
+            # начисление зарплаты
+            for i in list_poll_id:
+                update_money_voice(i, (list_str_sql(conf.tg_conf.admin_id)[2]*list_str_sql(conf.tg_conf.admin_id)[3]//100)//len(list_poll))
+                update_attems_voice(i, list_str_people_voice(i)[3]+1)
+
 
 
         else:
@@ -170,6 +181,7 @@ async def func(poll:PollAnswer):
     print(poll)
     if poll.user.username not in list_poll:
         list_poll.append("@" + str(poll.user.username))
+        list_poll_id.append(poll.user.id)
 
 # изменение процента
 @ad_r.message(walid_percent)
@@ -318,4 +330,5 @@ async def off(message:Message):
 #неизвестные команды
 @ad_r.message()
 async def not_walid(message:Message):
+    print(message.model_dump_json(indent=4))
     await message.answer(text=text['NOT_WALID'])

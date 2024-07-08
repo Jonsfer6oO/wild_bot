@@ -24,7 +24,7 @@ async def start_from_people(message:Message):
 # help
 @pe_r.message(Command(commands="help"))
 async def help_from_people(message:Message):
-    await message.answer(text=text["HELP"].format(list_str_sql(conf.tg_conf.admin_id)[1]),
+    await message.answer(text=text["HELP_PEOPLE"].format(list_str_sql(conf.tg_conf.admin_id)[1]),
                          parse_mode=ParseMode.HTML)
 
 # правила создания опроса
@@ -48,7 +48,7 @@ async def balance_people(message:Message):
 async def configuration_people(message:Message):
     data = list_str_sql(message.from_user.id)
     await message.answer(text=text["CONFIGURATION"].format(list_str_people(message.from_user.id)[2],
-                                                            list_str_people(message.from_user.id)[5],
+                                                            list_str_people(conf.tg_conf.admin_id)[5],
                                                             data[2]),
                          parse_mode=ParseMode.HTML)
 
